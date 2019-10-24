@@ -32,10 +32,12 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	if vars["id"] == "" {
 		http.ServeFile(w, r, "./static/"+"index.html")
+		return
 	}
 	isPresent := contains(files, vars["id"])
 	if isPresent {
 		http.ServeFile(w, r, "./static/"+vars["id"])
+		return
 	} else {
 
 		w.Header().Set("Content-Type", "application/json")
