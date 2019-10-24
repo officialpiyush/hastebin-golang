@@ -27,17 +27,16 @@ import (
 )
 
 func SetupRouter() {
-	r := mux.NewRouter()
+	r := mux.NewRouter().StrictSlash(true)
 
-	r.HandleFunc("/", api.Get).Methods("GET")
-	r.HandleFunc("/{id}", api.Get).Methods("GET")
+	//r.HandleFunc("/", api.Get).Methods("GET")
+	//r.HandleFunc("/{id}", api.Get).Methods("GET")
 	r.HandleFunc("/documents/{id}", api.Get).Methods("GET")
 
 	// Handle Post
 	r.HandleFunc("/documents", api.HandlePost).Methods("POST")
-	//r.PathPrefix("/").Handler(
-		http.StripPrefix("/", http.FileServer(http.Dir("./static/")))
-		//)
+	r.PathPrefix("/").Handler(
+		http.StripPrefix("/", http.FileServer(http.Dir("./static/"))))
 
 	// Start the server
 	_ = http.ListenAndServe(config.Get("port"), r)

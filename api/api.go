@@ -40,7 +40,7 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	if isPresent {
 		http.ServeFile(w, r, "./static/"+vars["id"])
 		return
-	} 
+	}
 	//else {
 	//	//Remove periods, etc from the key
 	//	if strings.ContainsAny(vars["id"], ".") {
