@@ -49,6 +49,7 @@ func Get(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println(err)
 			}
+			w.WriteHeader(http.StatusNotFound)
 			_, _ = w.Write(payload)
 		} else if ok {
 			json.Set("key", vars["id"])
