@@ -20,11 +20,13 @@
 package api
 
 import (
+	"bytes"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 	"hastebin-golang/database"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func Get(w http.ResponseWriter, r *http.Request) {
@@ -38,26 +40,84 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	if isPresent {
 		http.ServeFile(w, r, "./static/"+vars["id"])
 		return
-	} else {
+	} 
+	//else {
+	//	//Remove periods, etc from the key
+	//	if strings.ContainsAny(vars["id"], ".") {
+	//		id := strings.Split(vars["id"], ".")
+	//		vars["id"] = id[0]
+	//	}
+	//
+	//	w.Header().Set("Content-Type", "application/json")
+	//	doc, ok := database.GetDocument(vars["id"])
+	//	json := simplejson.New()
+	//	if !ok {
+	//		json.Set("message", "Document not found.")
+	//		payload, err := json.MarshalJSON()
+	//		if err != nil {
+	//			log.Println(err)
+	//		}
+	//		w.WriteHeader(http.StatusNotFound)
+	//		_, _ = w.Write(payload)
+	//		return
+	//	} else if ok {
+	//		json.Set("key", vars["id"])
+	//		json.Set("data", doc)
+	//		payload, _ := json.MarshalJSON()
+	//		_, _ = w.Write(payload)
+	//		return
+	//	}
+	//}
+}
 
-		w.Header().Set("Content-Type", "application/json")
-		doc, ok := database.GetDocument(vars["id"])
-		json := simplejson.New()
-		if !ok {
-			json.Set("message", "Document not found.")
-			payload, err := json.MarshalJSON()
-			if err != nil {
-				log.Println(err)
-			}
-			w.WriteHeader(http.StatusNotFound)
-			_, _ = w.Write(payload)
-		} else if ok {
-			json.Set("key", vars["id"])
-			json.Set("data", doc)
-			payload, _ := json.MarshalJSON()
-			_, _ = w.Write(payload)
-		}
+func GetDocument(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	//Remove periods, etc from the key
+	if strings.ContainsAny(vars["id"], ".") {
+		id := strings.Split(vars["id"], ".")
+		vars["id"]  = id[0]
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	doc, ok := database.GetDocument(vars["id"])
+	json := simplejson.New()
+	if !ok {
+		json.Set("message", "Document not found.")
+		payload, err := json.MarshalJSON()
+		if err != nil {
+			log.Println(err)
+		}
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write(payload)
+		return
+	} else if ok {
+		json.Set("key", vars["id"])
+		json.Set("data", doc)
+		payload, _ := json.MarshalJSON()
+		_, _ = w.Write(payload)
+		return
+	}
+}
+
+func HandlePost(w http.ResponseWriter, r *http.Request){
+	buffer := new(bytes.Buffer)
+	_, _ = buffer.ReadFrom(r.Body)
+	body := buffer.String()
+
+	key := database.CreateDocument(body)
+	json := simplejson.New()
+
+	if key == "" {
+		http.Redirect(w, r, "/", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.Set("key", key);
+	payload, _ := json.MarshalJSON()
+	_, _ = w.Write(payload)
+	return
 }
 
 func contains(s [11]string, e string) bool {

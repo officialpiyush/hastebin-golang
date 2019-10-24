@@ -68,9 +68,13 @@ func CreateDocument(content string) string {
 
 func GetDocument(key string) (string, bool) {
 	var doc Document
+	 objectID, err := primitive.ObjectIDFromHex(key)
+	 if err != nil {
+	 	return "", false
+	 }
 	collection := c.Database(config.Get("dbName")).Collection("files")
-	result := collection.FindOne(context.TODO(), bson.M{"_id": key})
-	err := result.Decode(&doc)
+	result := collection.FindOne(context.TODO(), bson.M{"_id": objectID})
+	err = result.Decode(&doc)
 	if err != nil {
 		return "", false
 	}
