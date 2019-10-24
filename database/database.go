@@ -38,7 +38,6 @@ var c *mongo.Client
 // InitiateClient - Initialize the database client
 func InitiateClient() bool {
 	clientOptions := options.Client().ApplyURI(config.Get("mongoURI"))
-	fmt.Println(config.Get("mongoURI"))
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
 		log.Fatal(err)
