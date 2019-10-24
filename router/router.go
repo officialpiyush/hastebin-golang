@@ -29,6 +29,7 @@ import (
 func SetupRouter() {
 	r := mux.NewRouter()
 
+	r.HandleFunc("/", api.Get).Methods("GET")
 	r.HandleFunc("/{id}", api.Get).Methods("GET")
 
 	// Start the server
